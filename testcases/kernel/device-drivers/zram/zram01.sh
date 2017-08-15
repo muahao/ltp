@@ -23,11 +23,11 @@
 TCID="zram01"
 TST_TOTAL=8
 
-. test.sh
-. zram_lib.sh
+#. test.sh
+source ./zram_lib.sh
 
 # Test will create the following number of zram devices:
-dev_num=4
+dev_num=1
 # This is a list of parameters for zram devices.
 # Number of items must be equal to 'dev_num' parameter.
 zram_max_streams="2 3 5 8"
@@ -39,9 +39,12 @@ zram_max_streams="2 3 5 8"
 # not support mem suffixes, in some newer kernels, they use
 # memparse() which supports mem suffixes. So here we just use
 # bytes to make sure everything works correctly.
-zram_sizes="26214400 26214400 26214400 41943040" # 25MB, 40MB for btrfs
+#zram_sizes="26214400 26214400 26214400 41943040" # 25MB, 40MB for btrfs
+zram_sizes="100M"
+#zram_sizes="100M 100M 100M 100M"
 zram_mem_limits="25M 25M 25M 40M"
-zram_filesystems="ext3 ext4 xfs btrfs"
+zram_filesystems="xfs"
+#zram_filesystems="ext3 ext4 xfs btrfs"
 zram_algs="lzo lzo lzo lzo"
 
 TST_CLEANUP="zram_cleanup"
@@ -67,9 +70,13 @@ zram_fill_fs()
 	local used_mem=$(($mem_free0 - $mem_free1))
 
 	local total_size=0
-	for sm in $zram_sizes; do
-		local s=$(echo $sm | sed 's/M//')
-		total_size=$(($total_size + $s))
+#	for sm in $zram_sizes; do
+#		local s=$(echo $sm | sed 's/M//')
+#		total_size=$(($total_size + $s))
+#	done
+	for i in `df -h  | grep zram | awk '{print $2}'`;do 
+		j=`echo $i|sed 's/M//'`
+		total_size=$(($total_size + $j))
 	done
 
 	tst_resm TINFO "zram used ${used_mem}M, zram disk sizes ${total_size}M"
@@ -85,13 +92,14 @@ zram_fill_fs()
 }
 
 zram_load
-zram_max_streams
-zram_compress_alg
+#zram_max_streams
+#zram_compress_alg
 zram_set_disksizes
-zram_set_memlimit
+#zram_set_memlimit
 zram_makefs
 zram_mount
 
 zram_fill_fs
 
-tst_exit
+zram_cleanup
+#tst_exit

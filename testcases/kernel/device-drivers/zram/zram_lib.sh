@@ -162,6 +162,8 @@ zram_makeswap()
 		if [ $? -ne 0 ]; then
 			cat err.log
 			tst_brkm TFAIL "mkswap /dev/zram$1 failed"
+		else
+			tst_resm TINFO "mkswap /dev/zram$1 success"
 		fi
 
 		swapon /dev/zram$i > err.log 2>&1
@@ -186,6 +188,8 @@ zram_swapoff()
 		if [ $? -ne 0 ]; then
 			cat err.log
 			tst_brkm TFAIL "swapoff /dev/zram$i failed"
+		else
+			tst_resm TINFO "swapoff /dev/zram$i success"
 		fi
 	done
 	dev_makeswap=-1
@@ -211,6 +215,18 @@ zram_makefs()
 	done
 
 	tst_resm TPASS "zram_makefs succeeded"
+}
+
+tst_resm(){
+echo "$1" "$2"
+}
+
+tst_brkm(){
+echo "$1" "$2"
+}
+
+tst_exit(){
+echo "$1" "$2"
 }
 
 zram_mount()
